@@ -60,15 +60,17 @@ export class Main {
         }, 2000);
       } else {
         const data: ICarObj = {
+          id: Math.floor(Math.random() * 10000000),
           name: createFormName.value,
           color: createFormColor.value,
         };
-        await addCar(data);
+        addCar(data);
         createFormName.value = '';
         createFormColor.value = '#000000';
-        this.allCars = await getCars();
-        const updatedCar: ICarObj = this.allCars.find(car => car.name === data.name && car.color === data.color)!;
-        document.getElementById('cars_table')!.appendChild(this.createCarRow(updatedCar));
+        this.allCars.push(data);
+        const createdCar = this.createCarRow(data);
+        if (this.allCars.length - 1 < 7 * (this.currPage - 1) || this.allCars.length - 1 > 6 + 7 * (this.currPage - 1)) createdCar.classList.add('hide');
+        document.getElementById('cars_table')!.appendChild(createdCar);
         const tableName = document.getElementById('table_name') as HTMLHeadingElement;
         tableName.innerText = `Garage(${this.allCars.length})`;
       }
@@ -321,7 +323,6 @@ export class Main {
     const flagImg = tagGenerator('img', 'flag-img') as HTMLImageElement;
     flagImg.src = '../../assets/img/flag.png';
     let timer: NodeJS.Timer;
-
     const moveCar = async () => {
       aBtn.disabled = true;
       bBtn.classList.add('btn-b-active');
@@ -340,17 +341,17 @@ export class Main {
       const engDrive = await engineDrive(car.id!);
       if ( typeof engDrive === 'string' ) clearInterval(timer);
       aBtn.disabled = false;
-      aBtn.removeEventListener('click', moveCar);
     };
-    bBtn.addEventListener('click', async () => {
+    async function stopCar() {
       aBtn.classList.add('btn-a-active');
       bBtn.classList.remove('btn-b-active');
       clearInterval(timer);
       carImg.style.left = '';
-      aBtn.addEventListener('click', moveCar);
-    });
+      aBtn.disabled = false;
+    }
 
     aBtn.addEventListener('click', moveCar);
+    bBtn.addEventListener('click', stopCar);
 
     [startTopBlock, startBottomBlock].forEach(item => startBlock.appendChild(item));
     [startBlock, flagImg].forEach(item => carRow.appendChild(item));
