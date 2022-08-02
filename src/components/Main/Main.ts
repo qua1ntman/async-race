@@ -46,6 +46,7 @@ export class Main {
     const createFormColor = tagGenerator('input', 'car-color-input', 'create_color') as HTMLInputElement;
     createFormColor.type = 'color';
     const createBtn = tagGenerator('button', 'btn', 'create_btn') as HTMLButtonElement;
+    createBtn.classList.add('green-btn');
     createBtn.innerText = 'Create';
     const errorDiv = tagGenerator('div', 'error-create') as HTMLDivElement;
 
@@ -83,34 +84,29 @@ export class Main {
     const updateFormColor = tagGenerator('input', 'car-color-input', 'update_color') as HTMLInputElement;
     updateFormColor.type = 'color';
     const updateBtn = tagGenerator('button', 'btn', 'update_btn') as HTMLButtonElement;
+    updateBtn.classList.add('green-btn');
     updateBtn.innerText = 'Update';
+    updateBtn.disabled = true;
     [updateFormName, updateFormColor, updateBtn].forEach(item => updateForm.appendChild(item));
 
     updateBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      if (updateFormName.value === '') {
-        updateFormName.setAttribute('placeholder', 'There is no data (ᗒᗣᗕ)՞');
-        updateFormName.classList.add('red-placeholder');
-        setTimeout(() => {
-          updateFormName.removeAttribute('placeholder');
-          updateFormName.classList.remove('red-placeholder');
-        }, 2000);
-      } else {
-        const data: ICarObj = {
-          id: this.selectedId,
-          name: updateFormName.value,
-          color: updateFormColor.value,
-        };
-        
-        editCar(data);
-        const updatetCar = document.getElementById(`car_${data.id}`)!;
-        const carName = updatetCar.getElementsByClassName('car-name')[0] as HTMLHeadingElement;
-        carName.innerText = data.name!;
-        const carImg = updatetCar.getElementsByClassName('car-img')[0] as HTMLDivElement;
-        carImg.querySelector('path')!.setAttribute('fill', data.color!);
-        updateFormName.value = '';
-        updateFormColor.value = '#000000';
-      }
+      const data: ICarObj = {
+        id: this.selectedId,
+        name: updateFormName.value,
+        color: updateFormColor.value,
+      };
+      
+      editCar(data);
+      const updatetCar = document.getElementById(`car_${data.id}`)!;
+      const carName = updatetCar.getElementsByClassName('car-name')[0] as HTMLHeadingElement;
+      carName.innerText = data.name!;
+      const carImg = updatetCar.getElementsByClassName('car-img')[0] as HTMLDivElement;
+      carImg.querySelector('path')!.setAttribute('fill', data.color!);
+      updateFormName.value = '';
+      updateFormColor.value = '#000000';
+      this.selectedId = 0;
+      updateBtn.disabled = true;
     });
 
     const raceBtn = tagGenerator('button', 'btn', 'race_btn') as HTMLButtonElement;
@@ -187,6 +183,7 @@ export class Main {
 
 
     const generatorBtn = tagGenerator('button', 'btn', 'generator_btn') as HTMLButtonElement;
+    generatorBtn.classList.add('green-btn');
     generatorBtn.innerText = 'Generate Cars';
     generatorBtn.addEventListener('click', async () => {
       const table = document.getElementById('cars_table')!;
@@ -285,16 +282,20 @@ export class Main {
     const startBottomBlock = tagGenerator('div', 'start-bottom-block') as HTMLDivElement;
     
     const selectBtn = tagGenerator('button', 'btn', 'select_btn') as HTMLButtonElement;
+    selectBtn.classList.add('green-btn');
     selectBtn.innerText = 'Select';
     selectBtn.addEventListener('click', () => {
       const createFormName = document.getElementById('update_name') as HTMLInputElement;
       const createFormColor = document.getElementById('update_color') as HTMLInputElement;
       this.selectedId = car.id!;
+      const updateBtn = document.getElementById('update_btn') as HTMLButtonElement;
+      updateBtn.disabled = false;
       createFormName.value = car.name!;
       createFormColor.value = car.color!;
     });
 
     const removeBtn = tagGenerator('button', 'btn', 'remove_btn') as HTMLButtonElement;
+    removeBtn.classList.add('green-btn');
     removeBtn.innerText = 'Remove';
     removeBtn.addEventListener('click', () => {
       document.getElementById(`car_${car.id}`)?.remove();
