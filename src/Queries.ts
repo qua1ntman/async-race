@@ -2,28 +2,16 @@ import { ICarObj, IWinnerObj } from './DataIntarfaces';
 
 const url = 'https://secure-island-83297.herokuapp.com';
 
-export async function getCars(page: number): Promise<ICarObj[]> {
-  const data: Response = await fetch(`${url}/garage?_page=${page}&_limit=7`);
-  const responce: ICarObj[] = await data.json();
-  return responce;
-}
-
-export async function getCarsNumber(): Promise<number> {
+export async function getCars(): Promise<ICarObj[]> {
   const data: Response = await fetch(`${url}/garage`);
   const responce: ICarObj[] = await data.json();
-  return responce.length;
-}
-
-export async function getWinners(page: number): Promise<IWinnerObj[]> {
-  const data: Response = await fetch(`${url}/winners?_page=${page}&_limit=7`);
-  const responce: IWinnerObj[] = await data.json();
   return responce;
 }
 
-export async function getWinnersNumber(): Promise<number> {
+export async function getWinners(): Promise<IWinnerObj[]> {
   const data: Response = await fetch(`${url}/winners`);
   const responce: IWinnerObj[] = await data.json();
-  return responce.length;
+  return responce;
 }
 
 export async function addWinner({ id, time }: { id: number, time: number }): Promise<ICarObj> {
@@ -54,7 +42,7 @@ export async function addWinner({ id, time }: { id: number, time: number }): Pro
 
 }
 
-export async function getCar(id: number): Promise<ICarObj> {
+export async function getCar(id: number ): Promise<ICarObj> {
   const data: Response = await fetch(`${url}/garage/${id}`);
   const responce: ICarObj = await data.json();
   return responce;
@@ -85,11 +73,20 @@ export async function editCar(car: ICarObj): Promise<ICarObj> {
   return responce;
 }
 
-export async function deleteCar(id: number): Promise<ICarObj> {
+export async function deleteCar(id: number ): Promise<ICarObj> {
   const data: Response = await fetch(`${url}/garage/${id}`, { method: 'DELETE' });
   const responce: ICarObj = await data.json();
-  const data2: Response = await fetch(`${url}/winners/${id}`, { method: 'DELETE' });
-  await data2.json();
+  fetch(`${url}/winners/${id}`, { method: 'DELETE' });
+  return responce;
+}
+
+export async function clearDataBase(): Promise<any> {
+  const data: Response = await fetch(`${url}/garage`);
+  const responce: ICarObj[] = await data.json();
+  for (let i = 0; i < responce.length; i++) {
+    fetch(`${url}/garage/${responce[i].id}`, { method: 'DELETE' });
+    fetch(`${url}/winners/${responce[i].id}`, { method: 'DELETE' });
+  }
   return responce;
 }
 
@@ -99,7 +96,7 @@ export async function engineSwitch(id: number, engine: string) {
   return responce;
 }
 
-export async function engineDrive(id: number): Promise<string | { success: string; }> {
+export async function engineDrive(id: number ): Promise<string | { success: string; }> {
   const data: Response = await fetch(`${url}/engine?id=${id}&status=drive`, { method: 'PATCH' });
   try {
     const responce = await data.json();

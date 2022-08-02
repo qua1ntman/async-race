@@ -131,7 +131,6 @@
 }
 
 .congrats-back {
-  pointer-events: none;
   position: fixed;
   left: 0;
   top: 0;
@@ -140,10 +139,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
   background-color: rgba(185, 223, 255, .3);
 }
 
 .congrats-text {
+  text-align: center;
   font-size: 4rem;
   -webkit-text-stroke: 2px rgb(212, 64, 64);
   color: #0066ff;

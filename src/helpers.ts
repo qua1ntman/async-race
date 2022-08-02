@@ -10,5 +10,5 @@ export function getRandomColor(): string {
 }
 
 export function calculateDistance(first: HTMLElement, second: HTMLElement): number {
-  return second.offsetLeft - first.offsetLeft + second.offsetWidth - 50;
+  return second.offsetLeft - first.offsetLeft + second.offsetWidth - 67;
 }

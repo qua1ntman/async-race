@@ -16,9 +16,11 @@
   align-items: center;
   justify-content: center;
   width: 110px;
+  text-align: center;
 }
 
 .blue-table-header {
+  display: flex;
   background-color: rgb(56, 182, 182);
 }
 

@@ -1,4 +1,3 @@
-import { Winners } from '../../components/Winners/Winners';
 import { Main } from '../../components/Main/Main';
 import { tagGenerator } from '../../helpers';
 import './App.scss';
@@ -6,9 +5,7 @@ import './App.scss';
 export class App {
 
   main = new Main();
-
-  winners = new Winners();
-
+  
   async start() {
     const root = document.getElementById('root')! as HTMLElement;
     const main = document.createElement('main') as HTMLElement;
@@ -18,7 +15,7 @@ export class App {
     root.appendChild(main);
     await this.main.createMainSection();
     document.getElementById('loader')?.remove();
-    await this.winners.createWinnersSection();
+    await this.main.winners.createWinnersSection();
   }
 
   createLoader(): HTMLElement {

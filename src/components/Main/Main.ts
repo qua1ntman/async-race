@@ -1,4 +1,4 @@
-import { addCar, addWinner, deleteCar, editCar, engineDrive, engineSwitch, getCars, getCarsNumber } from '../../Queries';
+import { addCar, addWinner, deleteCar, editCar, engineDrive, engineSwitch, getCars } from '../../Queries';
 import { calculateDistance, getRandomColor, tagGenerator } from '../../helpers';
 import './Main.scss';
 import { ICarObj } from './../../DataIntarfaces';
@@ -8,9 +8,11 @@ import { Winners } from '../Winners/Winners';
 
 export class Main {
 
+  allCars: ICarObj[] = [];
+
   winners: Winners = new Winners();
 
-  selectedId: number = 0;
+  selectedId: number  = 0;
 
   currPage: number = 1;
 
@@ -23,6 +25,8 @@ export class Main {
   carsRaceData: [number, HTMLElement, HTMLElement, number, number, number][] = [];
 
   async createMainSection(): Promise<void> {
+    this.allCars = await getCars();
+    this.winners.allCars = this.allCars;
     this.createActionBlock();
     await this.createCarTable();
     this.mainPage.appendChild(this.upperTable);
@@ -62,8 +66,11 @@ export class Main {
         await addCar(data);
         createFormName.value = '';
         createFormColor.value = '#000000';
-        document.getElementById('cars_table')!.remove();
-        this.createCarTable();
+        this.allCars = await getCars();
+        const updatedCar: ICarObj = this.allCars.find(car => car.name === data.name && car.color === data.color)!;
+        document.getElementById('cars_table')!.appendChild(this.createCarRow(updatedCar));
+        const tableName = document.getElementById('table_name') as HTMLHeadingElement;
+        tableName.innerText = `Garage(${this.allCars.length})`;
       }
     });
     
@@ -77,7 +84,7 @@ export class Main {
     updateBtn.innerText = 'Update';
     [updateFormName, updateFormColor, updateBtn].forEach(item => updateForm.appendChild(item));
 
-    updateBtn.addEventListener('click', async (e) => {
+    updateBtn.addEventListener('click', (e) => {
       e.preventDefault();
       if (updateFormName.value === '') {
         updateFormName.setAttribute('placeholder', 'There is no data (ᗒᗣᗕ)՞');
@@ -93,19 +100,27 @@ export class Main {
           color: updateFormColor.value,
         };
         
-        await editCar(data);
+        editCar(data);
+        const updatetCar = document.getElementById(`car_${data.id}`)!;
+        const carName = updatetCar.getElementsByClassName('car-name')[0] as HTMLHeadingElement;
+        carName.innerText = data.name!;
+        const carImg = updatetCar.getElementsByClassName('car-img')[0] as HTMLDivElement;
+        carImg.querySelector('path')!.setAttribute('fill', data.color!);
         updateFormName.value = '';
         updateFormColor.value = '#000000';
-        document.getElementById('cars_table')!.remove();
-        this.createCarTable();
       }
     });
 
     const raceBtn = tagGenerator('button', 'btn', 'race_btn') as HTMLButtonElement;
     raceBtn.innerText = 'Race';
+    const resetBtn = tagGenerator('button', 'btn', 'reset_btn') as HTMLButtonElement;
+    resetBtn.innerText = 'Reset';
+    resetBtn.disabled = true;
+
     const moveCar: () => Promise<void> = async () => {
       raceBtn.disabled = true;
-      const carRows = Array.from(document.getElementsByClassName('car-row')) as HTMLDivElement[];
+      const carRows: HTMLDivElement[] = Array.from(document.getElementsByClassName('car-row'))
+        .filter((item) => !item.classList.contains('hide')) as HTMLDivElement[];
       const getCarsRaceDate = async (): Promise<[number, HTMLElement, HTMLElement, number, number, number][]> => {
         const carsRaceData: [number, HTMLElement, HTMLElement, number, number, number][] = [];
         for (const item of carRows) {
@@ -117,6 +132,11 @@ export class Main {
           const range = calculateDistance(carImg, flagImg);
           carsRaceData.push([id, carImg, carName, velocity, distance, range ]);
         }
+        const removeCar = () => {
+          carsRaceData.forEach((item) => item[1].style.left = '');
+          resetBtn.removeEventListener('click', removeCar);
+        };
+        resetBtn.addEventListener('click', removeCar);
         return carsRaceData;
       };
       const addMovement = async (carsRaceData: [number, HTMLElement, HTMLElement, number, number, number][]) => {
@@ -129,10 +149,11 @@ export class Main {
               if (this.carWon.time > carTime) {
                 this.carWon.id = id;
                 this.carWon.time = carTime;
-                this.winnerWindow(`${carName.innerText} has won! Congratilations!`); 
+                this.winnerWindow(`${carName.innerText} has won with time ${carTime}s!\nCongratilations!`);
+                raceBtn.disabled = false;
                 setTimeout(() => {
                   document.getElementById('congrats')?.remove();
-                }, 7000);
+                }, 5000);
                 await addWinner(this.carWon);
                 document.getElementById('winners_page')?.remove();
                 this.winners.createWinnersSection();
@@ -142,38 +163,49 @@ export class Main {
               carImg.style.left = `${q}px`;
             }
           }, 20);
+          resetBtn.addEventListener('click', () => {
+            clearInterval(timer);
+            raceBtn.disabled = false;
+            resetBtn.disabled = true;
+          });
           const engDrive = await engineDrive(id);
-          if ( typeof engDrive === 'string' ) clearInterval(timer);
+          if ( typeof engDrive === 'string' ) clearInterval(timer);        
         });
       };
       console.log('Preparing...');
       this.winnerWindow('Preparing...'); 
       const carsRaceData = await getCarsRaceDate();
       document.getElementById('congrats')?.remove();
+      resetBtn.disabled = false;
       console.log('Go');
       await addMovement(carsRaceData);
     };
 
     raceBtn.addEventListener('click', moveCar);
-    const resetBtn = tagGenerator('button', 'btn', 'reset_btn') as HTMLButtonElement;
-    resetBtn.innerText = 'Reset';
-    resetBtn.addEventListener('click', () => {
-      raceBtn.disabled = false;
-      window.location.reload();
-    });
+
 
     const generatorBtn = tagGenerator('button', 'btn', 'generator_btn') as HTMLButtonElement;
     generatorBtn.innerText = 'Generate Cars';
     generatorBtn.addEventListener('click', async () => {
+      const table = document.getElementById('cars_table')!;
       for (let i = 0; i < 100; i++) {
         const data: ICarObj = {
           name: `${carData.carBrend[Math.floor(Math.random() * 10)]} ${carData.carModel[Math.floor(Math.random() * 10)]}`,
           color: getRandomColor(),
         };
-        await addCar(data);
+        data.id = Math.floor(Math.random() * 100000000);
+        addCar(data);
+        this.allCars.push(data);
+        table.appendChild(this.createCarRow(data));
       }
-      document.getElementById('cars_table')!.remove();
-      this.createCarTable();
+      const carsRows = Array.from(document.getElementsByClassName('car-row'));
+      carsRows.forEach((item, index) => {
+        if (index >= 7 * (this.currPage - 1) && index <= 6 + 7 * (this.currPage - 1)) item.classList.remove('hide');
+        else item.classList.add('hide');
+      });
+      const nextBtn = document.getElementById('next_main_btn')! as HTMLButtonElement;
+      nextBtn.disabled = false;
+      document.getElementById('table_name')!.innerText = `Garage(${this.allCars.length})`;
     });
 
     [raceBtn, resetBtn, generatorBtn].forEach(item => actionBtnsDiv.appendChild(item));
@@ -185,11 +217,11 @@ export class Main {
   }
 
   async createCarTable(): Promise<void> {
-    const cars = await getCars(this.currPage);
-    const carsNum = await getCarsNumber();
+
+
     const tableContainer = tagGenerator('div', 'table-container', 'cars_table') as HTMLDivElement;
     const tableName = tagGenerator('h2', 'table-name', 'table_name') as HTMLHeadingElement;
-    tableName.innerText = `Garage(${carsNum})`;
+    tableName.innerText = `Garage(${this.allCars.length})`;
     const tablePageNum = tagGenerator('h3', 'table-page-num', 'page_num') as HTMLHeadingElement;
     tablePageNum.innerText = `Page #${this.currPage}`;
     const table = tagGenerator('div', 'table-container', 'cars_table') as HTMLDivElement;
@@ -199,28 +231,45 @@ export class Main {
       prevBtn.disabled = true;
     }
     prevBtn.innerText = 'Prev Page';
-    prevBtn.addEventListener('click', () => {
-      if (this.currPage === 1) return;
-      this.currPage -= 1;
-      document.getElementById('cars_table')!.remove();
-      this.createCarTable();
-    });
     const nextBtn = tagGenerator('button', 'btn', 'next_main_btn') as HTMLButtonElement;
-    if (+tablePageNum.innerText.split('#')[1] >= (carsNum / 7)) {
+    if (+tablePageNum.innerText.split('#')[1] >= (this.allCars.length / 7)) {
       nextBtn.disabled = true;
     }
     nextBtn.innerText = 'Next Page';
+    prevBtn.addEventListener('click', () => {
+      const carsRows = Array.from(document.getElementsByClassName('car-row'));
+      if (this.currPage === 1) return;
+      this.currPage -= 1;
+      if (this.currPage === 1) prevBtn.disabled = true;
+      if (this.currPage < (this.allCars.length / 7)) nextBtn.disabled = false;
+      tablePageNum.innerText = `Page #${this.currPage}`;
+      carsRows.forEach((item, index) => {
+        if (index >= 7 * (this.currPage - 1) && index <= 6 + 7 * (this.currPage - 1)) item.classList.remove('hide');
+        else item.classList.add('hide');
+      });
+    });
+   
     nextBtn.addEventListener('click', () => {
-      if (this.currPage > (carsNum / 7) ) return;
+      const carsRows = Array.from(document.getElementsByClassName('car-row'));
+      if (this.currPage > (this.allCars.length / 7) ) return;
       this.currPage += 1;
-      document.getElementById('cars_table')!.remove();
-      this.createCarTable();
+      if (this.currPage >= (this.allCars.length / 7)) nextBtn.disabled = true;
+      if (this.currPage > 1) prevBtn.disabled = false;
+      tablePageNum.innerText = `Page #${this.currPage}`;
+      
+      carsRows.forEach((item, index) => {
+        if (index >= 7 * (this.currPage - 1) && index <= 6 + 7 * (this.currPage - 1)) item.classList.remove('hide');
+        else item.classList.add('hide');
+      });
     });
     [prevBtn, nextBtn].forEach((item) => paggContainer.appendChild(item));
 
-    cars.forEach((car) => {
-      table.appendChild(this.createCarRow(car));
+    const carNodes: HTMLDivElement[] = this.allCars.map((car, index) => {
+      const node = this.createCarRow(car);
+      if (index < 7 * (this.currPage - 1) || index > 6 + 7 * (this.currPage - 1)) node.classList.add('hide');
+      return node;
     });
+    carNodes.forEach((item) => table.appendChild(item));
 
     [tableName, tablePageNum, paggContainer, table].forEach((item) => tableContainer.appendChild(item));
     this.upperTable.appendChild(tableContainer);
@@ -245,10 +294,11 @@ export class Main {
 
     const removeBtn = tagGenerator('button', 'btn', 'remove_btn') as HTMLButtonElement;
     removeBtn.innerText = 'Remove';
-    removeBtn.addEventListener('click', async () => {
-      await deleteCar(car.id!);
-      document.getElementById('cars_table')!.remove();
-      this.createCarTable();
+    removeBtn.addEventListener('click', () => {
+      document.getElementById(`car_${car.id}`)?.remove();
+      deleteCar(car.id!);
+      this.allCars = this.allCars.filter((item) => item.id !== car.id);
+      document.getElementById('table_name')!.innerText = `Garage(${this.allCars.length})`;
     });
 
     const carName = tagGenerator('h4', 'car-name') as HTMLHeadingElement;
@@ -310,6 +360,7 @@ export class Main {
 
   winnerWindow(text: string) {
     const back = tagGenerator('div', 'congrats-back', 'congrats') as HTMLDivElement;
+    if (text !== 'Preparing...') back.addEventListener('click', () => back.remove());
     const congratsText = tagGenerator('div', 'congrats-text') as HTMLDivElement;
     congratsText.innerText = text;
     back.appendChild(congratsText);

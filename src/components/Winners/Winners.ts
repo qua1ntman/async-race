@@ -1,6 +1,6 @@
 import { tagGenerator } from '../../helpers';
 import './Winners.scss';
-import { getCar, getWinners, getWinnersNumber } from '../../Queries';
+import { getWinners } from '../../Queries';
 import { IWinnerObj } from '../../DataIntarfaces';
 import { carSvg } from '../../carSvg';
 import { ICarObj } from './../../DataIntarfaces';
@@ -9,47 +9,63 @@ export class Winners {
 
   currPage = 1;
 
+  allCars: ICarObj[] = [];
+
+  allWinners: IWinnerObj[] = [];
+
   async createWinnersSection(): Promise<void> {
-    const winnersNum: number = await getWinnersNumber();
-    const winners: IWinnerObj[] = await getWinners(this.currPage);
-    
+    this.allWinners = await getWinners();
 
     const winnersPage = tagGenerator('section', 'winners-section', 'winners_page') as HTMLBaseElement;
     winnersPage.classList.add('hide');
     const tableName = tagGenerator('h2', 'table-name', 'table_name') as HTMLHeadingElement;
-    tableName.innerText = `Winners(${winnersNum})`;
+    tableName.innerText = `Winners(${this.allWinners.length})`;
     const tablePageNum = tagGenerator('h3', 'table-page-num', 'page_num') as HTMLHeadingElement;
     tablePageNum.innerText = `Page #${this.currPage}`;
 
     const paggContainer = tagGenerator('div', 'pagg-cont') as HTMLDivElement;
-    const prevBtn = tagGenerator('button', 'btn', 'prev_main_btn') as HTMLButtonElement;
+    const prevBtn = tagGenerator('button', 'btn', 'prev_winners_btn') as HTMLButtonElement;
     if (+tablePageNum.innerText.split('#')[1] === 1) {
       prevBtn.disabled = true;
     }
     prevBtn.innerText = 'Prev Page';
-    prevBtn.addEventListener('click', () => {
-      if (this.currPage === 1) return;
-      this.currPage -= 1;
-      document.getElementById('cars_table')!.remove();
-      this.createWinnersSection();
-    });
-    const nextBtn = tagGenerator('button', 'btn', 'next_main_btn') as HTMLButtonElement;
-    if (+tablePageNum.innerText.split('#')[1] >= (winnersNum / 5)) {
+    
+    const nextBtn = tagGenerator('button', 'btn', 'next_winners_btn') as HTMLButtonElement;
+    if (+tablePageNum.innerText.split('#')[1] >= (this.allWinners.length / 5)) {
       nextBtn.disabled = true;
     }
     nextBtn.innerText = 'Next Page';
+    prevBtn.addEventListener('click', () => {
+      const winnersRows = Array.from(document.getElementsByClassName('table-row'));
+      if (this.currPage === 1) return;
+      this.currPage -= 1;
+      if (this.currPage === 1) prevBtn.disabled = true;
+      if (this.currPage < (this.allWinners.length / 5)) nextBtn.disabled = false;
+      tablePageNum.innerText = `Page #${this.currPage}`;
+      winnersRows.forEach((item, index) => {
+        if (index >= 5 * (this.currPage - 1) && index <= 4 + 5 * (this.currPage - 1)) item.classList.remove('hide');
+        else item.classList.add('hide');
+      });
+    });
+   
     nextBtn.addEventListener('click', () => {
-      if (this.currPage > (winnersNum / 5) ) return;
+      const winnersRows = Array.from(document.getElementsByClassName('table-row'));
+      if (this.currPage > (this.allWinners.length / 5)) return;
       this.currPage += 1;
-      document.getElementById('cars_table')!.remove();
-      this.createWinnersSection();
+      if (this.currPage > (this.allWinners.length / 5)) nextBtn.disabled = true;
+      if (this.currPage > 1) prevBtn.disabled = false;
+      tablePageNum.innerText = `Page #${this.currPage}`;
+      
+      winnersRows.forEach((item, index) => {
+        if (index >= 5 * (this.currPage - 1) && index <= 4 + 5 * (this.currPage - 1)) item.classList.remove('hide');
+        else item.classList.add('hide');
+      });
     });
     [prevBtn, nextBtn].forEach((item) => paggContainer.appendChild(item));
 
     const table = tagGenerator('table', 'table-container', 'winners_table') as HTMLTableElement;
     const tableHeader = tagGenerator('thead', 'table-container') as HTMLTableElement;
-    const tableHeaderRow = tagGenerator('tr', 'table-row') as HTMLTableRowElement;
-    tableHeaderRow.classList.add('blue-table-header');
+    const tableHeaderRow = tagGenerator('tr', 'blue-table-header') as HTMLTableRowElement;
     ['Number', 'Car', 'Name', 'Wins', 'Best time (seconds)'].forEach((cell) => {
       const cellTH = tagGenerator('th', 'table-cell') as HTMLTableCellElement;
       cellTH.innerText = cell;
@@ -58,18 +74,20 @@ export class Winners {
     tableHeader.appendChild(tableHeaderRow);
 
     const tableBody = tagGenerator('tbody', 'table-container') as HTMLTableElement;
-
-    winners.forEach(async (winner, index) => {
-      tableBody.appendChild(await this.createWinnerRow(winner, index));
+    const winnersNodes: HTMLDivElement[] = this.allWinners.map((winner, index) => {
+      const node = this.createWinnerRow(winner, index);
+      if (index < 5 * (this.currPage - 1) || index > 4 + 5 * (this.currPage - 1)) node.classList.add('hide');
+      return node;
     });
+    winnersNodes.forEach((winner) => tableBody.appendChild(winner));
 
     [tableHeader, tableBody].forEach(item => table.appendChild(item));
     [tableName, tablePageNum, paggContainer, table].forEach(item => winnersPage.appendChild(item));
     document.getElementById('main')?.appendChild(winnersPage);
   }
 
-  async createWinnerRow(winner: IWinnerObj, index: number): Promise<HTMLTableRowElement> {
-    const car: ICarObj = await getCar(winner.id!);
+  createWinnerRow(winner: IWinnerObj, index: number): HTMLTableRowElement {
+    const car: ICarObj = this.allCars.find((item) => item.id === winner.id)!;
 
     const winnerRow = tagGenerator('tr', 'table-row', `winner_${car.id}`) as HTMLTableRowElement;
     const winnerNumber = tagGenerator('td', 'table-cell') as HTMLTableCellElement;
