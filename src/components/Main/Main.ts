@@ -65,12 +65,18 @@ export class Main {
           name: createFormName.value,
           color: createFormColor.value,
         };
+        console.log(data);
+        
         addCar(data);
         createFormName.value = '';
         createFormColor.value = '#000000';
         this.allCars.push(data);
         const createdCar = this.createCarRow(data);
-        if (this.allCars.length - 1 < 7 * (this.currPage - 1) || this.allCars.length - 1 > 6 + 7 * (this.currPage - 1)) createdCar.classList.add('hide');
+        if (this.allCars.length - 1 < 7 * (this.currPage - 1) || this.allCars.length - 1 > 6 + 7 * (this.currPage - 1)) {
+          createdCar.classList.add('hide');
+          const nextBtn = document.getElementById('next_main_btn') as HTMLButtonElement;
+          nextBtn.disabled = false;
+        }  
         document.getElementById('cars_table')!.appendChild(createdCar);
         const tableName = document.getElementById('table_name') as HTMLHeadingElement;
         tableName.innerText = `Garage(${this.allCars.length})`;

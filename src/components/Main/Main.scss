@@ -58,6 +58,8 @@
 .btn-a {
   color: rgb(36, 199, 36);
   border: 1px solid  rgb(36, 199, 36);
+  transition: color .2s ease-in-out;
+  transition: box-shadow .2s ease-in-out;
   &:hover {
     color: rgb(47, 255, 47);
     box-shadow: 0 0 10px rgb(47, 255, 47);
@@ -67,6 +69,8 @@
 .btn-b {
   color: rgb(201, 32, 32);
   border: 1px solid  rgb(201, 32, 32);
+  transition: color .2s ease-in-out;
+  transition: box-shadow .2s ease-in-out;
   &:hover {
     color: rgb(255, 35, 35);
     box-shadow: 0 0 10px rgb(255, 35, 35);

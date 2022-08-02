@@ -52,7 +52,7 @@ body {
 .car-svg {
   stroke: #34fc34;
   stroke-width: 100;
-  transition: stroke-width .2 ease-in-out;
+  transition: stroke .25s ease-in-out;
   &:hover {
     cursor: pointer;
     stroke: #0011ff;
