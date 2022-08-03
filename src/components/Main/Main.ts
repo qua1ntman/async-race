@@ -67,7 +67,7 @@ export class Main {
         };
         console.log(data);
         
-        addCar(data);
+        await addCar(data);
         createFormName.value = '';
         createFormColor.value = '#000000';
         this.allCars.push(data);
@@ -95,15 +95,14 @@ export class Main {
     updateBtn.disabled = true;
     [updateFormName, updateFormColor, updateBtn].forEach(item => updateForm.appendChild(item));
 
-    updateBtn.addEventListener('click', (e) => {
+    updateBtn.addEventListener('click', async (e) => {
       e.preventDefault();
       const data: ICarObj = {
         id: this.selectedId,
         name: updateFormName.value,
         color: updateFormColor.value,
       };
-      
-      editCar(data);
+      await editCar(data);
       const updatetCar = document.getElementById(`car_${data.id}`)!;
       const carName = updatetCar.getElementsByClassName('car-name')[0] as HTMLHeadingElement;
       carName.innerText = data.name!;
@@ -193,24 +192,28 @@ export class Main {
     generatorBtn.innerText = 'Generate Cars';
     generatorBtn.addEventListener('click', async () => {
       const table = document.getElementById('cars_table')!;
+      const nextBtn = document.getElementById('next_main_btn')! as HTMLButtonElement;
       for (let i = 0; i < 100; i++) {
         const data: ICarObj = {
           name: `${carData.carBrend[Math.floor(Math.random() * 10)]} ${carData.carModel[Math.floor(Math.random() * 10)]}`,
           color: getRandomColor(),
+          id: Math.floor(Math.random() * 100000000),
         };
-        data.id = Math.floor(Math.random() * 100000000);
-        addCar(data);
-        this.allCars.push(data);
-        table.appendChild(this.createCarRow(data));
+        if (await addCar(data)) {
+          this.allCars.push(data);
+          let idx = this.allCars.findIndex((item) => item.id === data.id);
+          const row = this.createCarRow(data);
+          if (idx < 7 * (this.currPage - 1) || idx > 6 + 7 * (this.currPage - 1)) row.classList.add('hide');
+          table.appendChild(row);
+        }
+        nextBtn.disabled = false;
+        document.getElementById('table_name')!.innerText = `Garage(${this.allCars.length})`;
       }
       const carsRows = Array.from(document.getElementsByClassName('car-row'));
       carsRows.forEach((item, index) => {
         if (index >= 7 * (this.currPage - 1) && index <= 6 + 7 * (this.currPage - 1)) item.classList.remove('hide');
         else item.classList.add('hide');
       });
-      const nextBtn = document.getElementById('next_main_btn')! as HTMLButtonElement;
-      nextBtn.disabled = false;
-      document.getElementById('table_name')!.innerText = `Garage(${this.allCars.length})`;
     });
 
     [raceBtn, resetBtn, generatorBtn].forEach(item => actionBtnsDiv.appendChild(item));
