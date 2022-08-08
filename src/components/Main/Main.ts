@@ -14,7 +14,7 @@ export class Main {
 
   selectedId: number  = 0;
 
-  currPage: number = 1;
+  currPage: number = +localStorage.getItem('mainPage')! || 1;
 
   mainPage = tagGenerator('section', 'cars-section', 'cars_page') as HTMLBaseElement;
   
@@ -248,6 +248,7 @@ export class Main {
       const carsRows = Array.from(document.getElementsByClassName('car-row'));
       if (this.currPage === 1) return;
       this.currPage -= 1;
+      localStorage.setItem('mainPage', `${this.currPage}`);
       if (this.currPage === 1) prevBtn.disabled = true;
       if (this.currPage < (this.allCars.length / 7)) nextBtn.disabled = false;
       tablePageNum.innerText = `Page #${this.currPage}`;
@@ -261,6 +262,7 @@ export class Main {
       const carsRows = Array.from(document.getElementsByClassName('car-row'));
       if (this.currPage > (this.allCars.length / 7) ) return;
       this.currPage += 1;
+      localStorage.setItem('mainPage', `${this.currPage}`);
       if (this.currPage >= (this.allCars.length / 7)) nextBtn.disabled = true;
       if (this.currPage > 1) prevBtn.disabled = false;
       tablePageNum.innerText = `Page #${this.currPage}`;

@@ -7,7 +7,7 @@ import { ICarObj } from './../../DataIntarfaces';
 
 export class Winners {
 
-  currPage = 1;
+  currPage: number = +localStorage.getItem('winnersPage')! || 1;
 
   allCars: ICarObj[] = [];
 
@@ -39,25 +39,27 @@ export class Winners {
       const winnersRows = Array.from(document.getElementsByClassName('table-row'));
       if (this.currPage === 1) return;
       this.currPage -= 1;
+      localStorage.setItem('winnersPage', `${this.currPage}`);
       if (this.currPage === 1) prevBtn.disabled = true;
       if (this.currPage < (this.allWinners.length / 5)) nextBtn.disabled = false;
       tablePageNum.innerText = `Page #${this.currPage}`;
       winnersRows.forEach((item, index) => {
-        if (index >= 5 * (this.currPage - 1) && index <= 4 + 5 * (this.currPage - 1)) item.classList.remove('hide');
+        if (index >= 10 * (this.currPage - 1) && index <= 9 + 10 * (this.currPage - 1)) item.classList.remove('hide');
         else item.classList.add('hide');
       });
     });
    
     nextBtn.addEventListener('click', () => {
       const winnersRows = Array.from(document.getElementsByClassName('table-row'));
-      if (this.currPage > (this.allWinners.length / 5)) return;
+      if (this.currPage > (this.allWinners.length / 10)) return;
       this.currPage += 1;
-      if (this.currPage > (this.allWinners.length / 5)) nextBtn.disabled = true;
+      localStorage.setItem('winnersPage', `${this.currPage}`);
+      if (this.currPage > (this.allWinners.length / 10)) nextBtn.disabled = true;
       if (this.currPage > 1) prevBtn.disabled = false;
       tablePageNum.innerText = `Page #${this.currPage}`;
       
       winnersRows.forEach((item, index) => {
-        if (index >= 5 * (this.currPage - 1) && index <= 4 + 5 * (this.currPage - 1)) item.classList.remove('hide');
+        if (index >= 10 * (this.currPage - 1) && index <= 9 + 10 * (this.currPage - 1)) item.classList.remove('hide');
         else item.classList.add('hide');
       });
     });
@@ -76,7 +78,7 @@ export class Winners {
     const tableBody = tagGenerator('tbody', 'table-container') as HTMLTableElement;
     const winnersNodes: HTMLDivElement[] = this.allWinners.map((winner, index) => {
       const node = this.createWinnerRow(winner, index);
-      if (index < 5 * (this.currPage - 1) || index > 4 + 5 * (this.currPage - 1)) node.classList.add('hide');
+      if (index < 10 * (this.currPage - 1) || index > 9 + 10 * (this.currPage - 1)) node.classList.add('hide');
       return node;
     });
     winnersNodes.forEach((winner) => tableBody.appendChild(winner));
