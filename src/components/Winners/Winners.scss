@@ -30,3 +30,12 @@
     height: 40px;
   }
 }
+
+#winners_time,
+#wins_number {
+  transition: background-color .2s ease-in-out;
+  &:hover {
+    cursor: pointer;
+    background-color: rgb(83, 255, 255);
+  }
+}

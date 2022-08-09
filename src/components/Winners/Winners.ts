@@ -13,6 +13,8 @@ export class Winners {
 
   allWinners: IWinnerObj[] = [];
 
+  carsOnPage: number = 10;
+
   async createWinnersSection(): Promise<void> {
     this.allWinners = await getWinners();
 
@@ -44,22 +46,22 @@ export class Winners {
       if (this.currPage < (this.allWinners.length / 5)) nextBtn.disabled = false;
       tablePageNum.innerText = `Page #${this.currPage}`;
       winnersRows.forEach((item, index) => {
-        if (index >= 10 * (this.currPage - 1) && index <= 9 + 10 * (this.currPage - 1)) item.classList.remove('hide');
+        if (index >= this.carsOnPage * (this.currPage - 1) && index <= this.carsOnPage - 1 + this.carsOnPage * (this.currPage - 1)) item.classList.remove('hide');
         else item.classList.add('hide');
       });
     });
    
     nextBtn.addEventListener('click', () => {
       const winnersRows = Array.from(document.getElementsByClassName('table-row'));
-      if (this.currPage > (this.allWinners.length / 10)) return;
+      if (this.currPage > (this.allWinners.length / this.carsOnPage)) return;
       this.currPage += 1;
       localStorage.setItem('winnersPage', `${this.currPage}`);
-      if (this.currPage > (this.allWinners.length / 10)) nextBtn.disabled = true;
+      if (this.currPage > (this.allWinners.length / this.carsOnPage)) nextBtn.disabled = true;
       if (this.currPage > 1) prevBtn.disabled = false;
       tablePageNum.innerText = `Page #${this.currPage}`;
       
       winnersRows.forEach((item, index) => {
-        if (index >= 10 * (this.currPage - 1) && index <= 9 + 10 * (this.currPage - 1)) item.classList.remove('hide');
+        if (index >= this.carsOnPage * (this.currPage - 1) && index <= this.carsOnPage - 1 + this.carsOnPage * (this.currPage - 1)) item.classList.remove('hide');
         else item.classList.add('hide');
       });
     });
@@ -71,14 +73,45 @@ export class Winners {
     ['Number', 'Car', 'Name', 'Wins', 'Best time (seconds)'].forEach((cell) => {
       const cellTH = tagGenerator('th', 'table-cell') as HTMLTableCellElement;
       cellTH.innerText = cell;
+      if (cellTH.innerText === 'Best time (seconds)') {
+        cellTH.id = 'winners_time';
+        cellTH.addEventListener('click', () => {
+          if (!cellTH.getAttribute('sort')) {
+            this.sortWinners((a: IWinnerObj, b: IWinnerObj) => b.time - a.time);
+            cellTH.setAttribute('sort', 'from big');
+          } 
+          if (cellTH.getAttribute('sort') === 'from big') {
+            this.sortWinners((a: IWinnerObj, b: IWinnerObj) => a.time - b.time);
+            cellTH.setAttribute('sort', 'from small');
+          } else {
+            this.sortWinners((a: IWinnerObj, b: IWinnerObj) => b.time - a.time);
+            cellTH.setAttribute('sort', 'from big');
+          }
+        });
+      }
+      if (cellTH.innerText === 'Wins') {
+        cellTH.id = 'wins_number';
+        cellTH.addEventListener('click', () => {
+          if (!cellTH.getAttribute('sort')) {
+            this.sortWinners((a: IWinnerObj, b: IWinnerObj) => b.wins - a.wins);
+            cellTH.setAttribute('sort', 'from big');
+          } else if (cellTH.getAttribute('sort') === 'from big') {
+            this.sortWinners((a: IWinnerObj, b: IWinnerObj) => a.wins - b.wins);
+            cellTH.setAttribute('sort', 'from small');
+          } else if (cellTH.getAttribute('sort') === 'from small') {
+            this.sortWinners((a: IWinnerObj, b: IWinnerObj) => b.wins - a.wins);
+            cellTH.setAttribute('sort', 'from big');
+          }
+        });
+      }
       tableHeaderRow.appendChild(cellTH);
     });
     tableHeader.appendChild(tableHeaderRow);
 
-    const tableBody = tagGenerator('tbody', 'table-container') as HTMLTableElement;
+    const tableBody = tagGenerator('tbody', 'table-container', 'table_body') as HTMLTableElement;
     const winnersNodes: HTMLDivElement[] = this.allWinners.map((winner, index) => {
       const node = this.createWinnerRow(winner, index);
-      if (index < 10 * (this.currPage - 1) || index > 9 + 10 * (this.currPage - 1)) node.classList.add('hide');
+      if (index < this.carsOnPage * (this.currPage - 1) || index > this.carsOnPage - 1 + this.carsOnPage * (this.currPage - 1)) node.classList.add('hide');
       return node;
     });
     winnersNodes.forEach((winner) => tableBody.appendChild(winner));
@@ -111,4 +144,13 @@ export class Winners {
 
     return winnerRow;
   }
+
+  sortWinners(func: (a: IWinnerObj, b: IWinnerObj) => number) {
+    const table = document.getElementById('table_body') as HTMLTableElement;
+    this.allWinners.sort(func);
+    console.log(this.allWinners);
+    table.innerHTML = '';
+    this.allWinners.forEach((item, index) => table.appendChild(this.createWinnerRow(item, index)));
+  }
+
 }

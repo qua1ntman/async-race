@@ -310,7 +310,9 @@ export class Main {
     removeBtn.innerText = 'Remove';
     removeBtn.addEventListener('click', () => {
       document.getElementById(`car_${car.id}`)?.remove();
+      document.getElementById(`winner_${car.id}`)?.remove();
       deleteCar(car.id!);
+      this.winners.allWinners = this.winners.allWinners.filter((item) => item.id !== car.id);
       this.allCars = this.allCars.filter((item) => item.id !== car.id);
       document.getElementById('table_name')!.innerText = `Garage(${this.allCars.length})`;
     });
