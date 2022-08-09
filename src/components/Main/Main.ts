@@ -125,7 +125,6 @@ export class Main {
       const getCarsRaceDate = async (): Promise<[number, HTMLElement, HTMLElement, number, number, number][]> => {
         const carsRaceData: [number, HTMLElement, HTMLElement, number, number, number][] = [];
         for (const item of carRows) {
-
           const id: number = +item.id.split('_')[1]!;
           const carImg = item.getElementsByClassName('car-img')[0]! as HTMLElement;
           const flagImg = item.getElementsByClassName('flag-img')[0]! as HTMLElement;
@@ -314,6 +313,7 @@ export class Main {
     removeBtn.addEventListener('click', () => {
       document.getElementById(`car_${car.id}`)?.remove();
       document.getElementById(`winner_${car.id}`)?.remove();
+      document.getElementsByClassName('car-row')[6 + 7 * (this.currPage - 1)]?.classList.remove('hide');
       deleteCar(car.id!);
       this.winners.allWinners = this.winners.allWinners.filter((item) => item.id !== car.id);
       this.allCars = this.allCars.filter((item) => item.id !== car.id);
