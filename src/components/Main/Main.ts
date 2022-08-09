@@ -65,8 +65,6 @@ export class Main {
           name: createFormName.value,
           color: createFormColor.value,
         };
-        console.log(data);
-        
         await addCar(data);
         createFormName.value = '';
         createFormColor.value = '#000000';
@@ -152,22 +150,16 @@ export class Main {
           
           const timer = setInterval(async () => {
             if (q > range) {
-              console.log({ velocity, distance });
               clearInterval(timer);
-              console.log('insideInterval2', id);
               const carTime: number = +(distance / velocity / 1000).toFixed(2);
-              console.log('insideInterval3', id);
               if (this.carWon.time > carTime) {
-                console.log([ id, carImg, carName, velocity, distance, range ]);
                 this.carWon.id = id;
                 this.carWon.time = carTime;
-                console.log('before winner', this.carWon);
                 this.winnerWindow(`${carName.innerText} has won with time ${carTime}s!\nCongratilations!`);
                 raceBtn.disabled = false;
                 setTimeout(() => {
                   document.getElementById('congrats')?.remove();
                 }, 5000);
-                console.log('before addInWinners', this.carWon);
                 await addWinner(this.carWon);
                 document.getElementById('winners_page')?.remove();
                 this.winners.createWinnersSection();
