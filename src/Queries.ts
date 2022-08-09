@@ -97,8 +97,8 @@ export async function engineSwitch(id: number, engine: string) {
 }
 
 export async function engineDrive(id: number ): Promise<string | { success: string; }> {
-  const data: Response = await fetch(`${url}/engine?id=${id}&status=drive`, { method: 'PATCH' });
   try {
+    const data: Response = await fetch(`${url}/engine?id=${id}&status=drive`, { method: 'PATCH' });
     const responce = await data.json();
     return responce;
   } catch (e) {

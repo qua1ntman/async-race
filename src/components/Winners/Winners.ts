@@ -33,7 +33,7 @@ export class Winners {
     prevBtn.innerText = 'Prev Page';
     
     const nextBtn = tagGenerator('button', 'btn', 'next_winners_btn') as HTMLButtonElement;
-    if (+tablePageNum.innerText.split('#')[1] >= (this.allWinners.length / 5)) {
+    if (+tablePageNum.innerText.split('#')[1] >= (this.allWinners.length / this.carsOnPage)) {
       nextBtn.disabled = true;
     }
     nextBtn.innerText = 'Next Page';
@@ -43,7 +43,7 @@ export class Winners {
       this.currPage -= 1;
       localStorage.setItem('winnersPage', `${this.currPage}`);
       if (this.currPage === 1) prevBtn.disabled = true;
-      if (this.currPage < (this.allWinners.length / 5)) nextBtn.disabled = false;
+      if (this.currPage < (this.allWinners.length / this.carsOnPage)) nextBtn.disabled = false;
       tablePageNum.innerText = `Page #${this.currPage}`;
       winnersRows.forEach((item, index) => {
         if (index >= this.carsOnPage * (this.currPage - 1) && index <= this.carsOnPage - 1 + this.carsOnPage * (this.currPage - 1)) item.classList.remove('hide');
@@ -148,9 +148,12 @@ export class Winners {
   sortWinners(func: (a: IWinnerObj, b: IWinnerObj) => number) {
     const table = document.getElementById('table_body') as HTMLTableElement;
     this.allWinners.sort(func);
-    console.log(this.allWinners);
     table.innerHTML = '';
-    this.allWinners.forEach((item, index) => table.appendChild(this.createWinnerRow(item, index)));
+    this.allWinners.forEach((item, index) => {
+      const node = this.createWinnerRow(item, index);
+      if (index < this.carsOnPage * (this.currPage - 1) || index > this.carsOnPage - 1 + this.carsOnPage * (this.currPage - 1)) node.classList.add('hide');
+      table.appendChild(node);
+    });
   }
 
 }

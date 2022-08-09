@@ -375,7 +375,6 @@ export class Main {
 
   winnerWindow(text: string) {
     const back = tagGenerator('div', 'congrats-back', 'congrats') as HTMLDivElement;
-    if (text !== 'Preparing...') back.addEventListener('click', () => back.remove());
     const congratsText = tagGenerator('div', 'congrats-text') as HTMLDivElement;
     congratsText.innerText = text;
     back.appendChild(congratsText);
