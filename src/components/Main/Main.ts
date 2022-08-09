@@ -127,16 +127,20 @@ export class Main {
       const getCarsRaceDate = async (): Promise<[number, HTMLElement, HTMLElement, number, number, number][]> => {
         const carsRaceData: [number, HTMLElement, HTMLElement, number, number, number][] = [];
         for (const item of carRows) {
+
           const id: number = +item.id.split('_')[1]!;
           const carImg = item.getElementsByClassName('car-img')[0]! as HTMLElement;
           const flagImg = item.getElementsByClassName('flag-img')[0]! as HTMLElement;
           const carName = item.getElementsByClassName('car-name')[0]! as HTMLElement;
           const { velocity, distance }: { velocity: number, distance: number } = await engineSwitch(id, 'started');
           const range = calculateDistance(carImg, flagImg);
-          carsRaceData.push([id, carImg, carName, velocity, distance, range ]);
+          carsRaceData.push([id, carImg, carName, velocity, distance, range ]);          
         }
         const removeCar = () => {
-          carsRaceData.forEach((item) => item[1].style.left = '');
+          carsRaceData.forEach(async (item) => {
+            item[1].style.left = '';
+          });
+          this.carWon = { id: 0, time: 1000 };
           resetBtn.removeEventListener('click', removeCar);
         };
         resetBtn.addEventListener('click', removeCar);
@@ -145,18 +149,25 @@ export class Main {
       const addMovement = async (carsRaceData: [number, HTMLElement, HTMLElement, number, number, number][]) => {
         carsRaceData.forEach(async ([ id, carImg, carName, velocity, distance, range ]) => {
           let q: number = 0;
+          
           const timer = setInterval(async () => {
             if (q > range) {
+              console.log({ velocity, distance });
               clearInterval(timer);
+              console.log('insideInterval2', id);
               const carTime: number = +(distance / velocity / 1000).toFixed(2);
+              console.log('insideInterval3', id);
               if (this.carWon.time > carTime) {
+                console.log([ id, carImg, carName, velocity, distance, range ]);
                 this.carWon.id = id;
                 this.carWon.time = carTime;
+                console.log('before winner', this.carWon);
                 this.winnerWindow(`${carName.innerText} has won with time ${carTime}s!\nCongratilations!`);
                 raceBtn.disabled = false;
                 setTimeout(() => {
                   document.getElementById('congrats')?.remove();
                 }, 5000);
+                console.log('before addInWinners', this.carWon);
                 await addWinner(this.carWon);
                 document.getElementById('winners_page')?.remove();
                 this.winners.createWinnersSection();
