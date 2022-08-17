@@ -1,6 +1,6 @@
 import { ICarObj, IWinnerObj } from './DataIntarfaces';
 
-const url = 'http://localhost:3000';
+const url = 'https://secure-island-83297.herokuapp.com';
 
 export async function getCars(): Promise<ICarObj[]> {
   const data: Response = await fetch(`${url}/garage`);
