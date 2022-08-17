@@ -1,0 +1,41 @@
+.winners-section {
+  padding-left: 20px;
+  margin: 20px 0;
+}
+
+#winners_table {
+  margin-top: 20px;
+}
+
+.table-row {
+  display: flex;
+}
+
+.table-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 110px;
+  text-align: center;
+}
+
+.blue-table-header {
+  display: flex;
+  background-color: rgb(56, 182, 182);
+}
+
+.winners-car-img {
+  &>svg {
+    width: 100px;
+    height: 40px;
+  }
+}
+
+#winners_time,
+#wins_number {
+  transition: background-color .2s ease-in-out;
+  &:hover {
+    cursor: pointer;
+    background-color: rgb(83, 255, 255);
+  }
+}

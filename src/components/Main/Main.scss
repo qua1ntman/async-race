@@ -1,0 +1,150 @@
+.cars-section {
+  padding-left: 20px;
+}
+
+.action-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between ;
+  width: max(320px, 25%);
+  margin: 20px 0;
+  gap: 10px;
+}
+
+.set-up-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  &>input {
+    height: 20px;
+    color: rgb(58, 58, 58);
+  }
+  
+}
+
+.red-placeholder {
+  &::placeholder {
+    color: rgba($color: #ff0000, $alpha: .5);
+  }
+}
+
+.car-name-input {
+  padding: 5px;
+}
+.green-btn {
+  background-color: rgb(67, 247, 187);
+}
+
+.car-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: dashed 2px white;
+  margin: 10px 0 20px;
+}
+
+.pos-btn {
+  color: rgb(58, 58, 58);
+  background-color: #000000;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  transition: box-shadow .2s ease-in-out;
+  transition: color .2s ease-in-out;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.btn-a {
+  color: rgb(36, 199, 36);
+  border: 1px solid  rgb(36, 199, 36);
+  transition: color .2s ease-in-out;
+  transition: box-shadow .2s ease-in-out;
+  &:hover {
+    color: rgb(47, 255, 47);
+    box-shadow: 0 0 10px rgb(47, 255, 47);
+  }
+}
+
+.btn-b {
+  color: rgb(201, 32, 32);
+  border: 1px solid  rgb(201, 32, 32);
+  transition: color .2s ease-in-out;
+  transition: box-shadow .2s ease-in-out;
+  &:hover {
+    color: rgb(255, 35, 35);
+    box-shadow: 0 0 10px rgb(255, 35, 35);
+  }
+}
+
+.btn-a-active {
+  border: 1px solid rgb(47, 255, 47);
+  color: rgb(47, 255, 47);
+  box-shadow: 0 0 10px rgb(47, 255, 47);
+  &:hover {
+    color: rgb(47, 255, 47);
+  }
+}
+
+.btn-b-active {
+  border: 1px solid rgb(255, 35, 35);
+  color: rgb(255, 35, 35);
+  box-shadow: 0 0 10px rgb(255, 35, 35);
+  &:hover {
+    color: rgb(255, 35, 35);
+  }
+}
+
+.start-top-block {
+  padding: 10px 0;
+}
+
+.start-top-block,
+.start-bottom-block {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.car-img {
+  position: relative;
+  padding-top: 20px;
+  margin-bottom: -13px;
+  &>svg {
+    width: 110px;
+    height: 40px;
+  }
+}
+
+.flag-img {
+  margin-right: max(70px, 5%);
+  width: 100px;
+  margin-bottom: -10px;
+}
+
+.pagg-cont {
+  display: flex;
+  justify-content: space-between;
+  width: 200px;
+  margin-top: 20px;
+}
+
+.congrats-back {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: rgba(185, 223, 255, .3);
+}
+
+.congrats-text {
+  text-align: center;
+  font-size: 4rem;
+  -webkit-text-stroke: 2px rgb(212, 64, 64);
+  color: #0066ff;
+}
